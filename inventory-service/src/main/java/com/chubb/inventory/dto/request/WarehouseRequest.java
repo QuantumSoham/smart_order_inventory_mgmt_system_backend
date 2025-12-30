@@ -1,5 +1,9 @@
 package com.chubb.inventory.dto.request;
 
-public class WarehouseRequest {
+import lombok.*;
 
+@Getter @Setter
+public class WarehouseRequest {
+    private String name;
+    private String location;
 }
