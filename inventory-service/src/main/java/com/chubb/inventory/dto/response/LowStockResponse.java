@@ -1,0 +1,10 @@
+package com.chubb.inventory.dto.response;
+
+import lombok.*;
+
+@Getter @Setter
+@AllArgsConstructor
+public class LowStockResponse {
+    private Long productId;
+    private int available;
+}
