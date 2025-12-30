@@ -117,6 +117,19 @@ public class InventoryService {
                 });
     }
 
+    public List<InventoryByCategoryResponse> getByCategory(String category) {
+
+        return inventoryRepo.findByCategory(category).stream()
+                .map(inv -> new InventoryByCategoryResponse(
+                        inv.getProductId(),
+                        inv.getCategory(),
+                        inv.getWarehouse().getId(),
+                        inv.getAvailableQuantity(),
+                        inv.getReservedQuantity()
+                ))
+                .toList();
+    }
+
     public void commit(Long orderId) {
         reservationRepo.findByOrderIdAndStatus(orderId, "RESERVED")
                 .forEach(r -> r.setStatus("COMMITTED"));

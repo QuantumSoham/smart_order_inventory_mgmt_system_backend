@@ -41,6 +41,13 @@ public class InventoryController {
         return service.getByProduct(productId);
     }
 
+    @GetMapping("/category/{category}")
+    public List<InventoryByCategoryResponse> getByCategory(
+            @PathVariable String category) {
+
+        return service.getByCategory(category);
+    }
+
     @GetMapping("/low-stock")
     public List<LowStockResponse> lowStock() {
         return service.getLowStock();
@@ -63,4 +70,5 @@ public class InventoryController {
         service.commit(req.getOrderId());
         return new StockActionResponse("COMMITTED", req.getOrderId());
     }
+    
 }

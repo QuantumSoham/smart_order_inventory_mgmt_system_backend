@@ -26,4 +26,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> findByAvailableQuantityLessThanEqual(
             int threshold
     );
+    
+    List<Inventory> findByCategory(String category);
 }
