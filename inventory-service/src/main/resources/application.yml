@@ -12,3 +12,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  application:
+    name: inventory-service   # or order-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
