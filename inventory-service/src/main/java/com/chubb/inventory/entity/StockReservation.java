@@ -6,22 +6,18 @@ import lombok.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-@Table(
-    uniqueConstraints = @UniqueConstraint(columnNames = {"productId", "warehouse_id"})
-)
-public class Inventory {
+public class StockReservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long orderId;
     private Long productId;
+    private int quantity;
 
     @ManyToOne
     private Warehouse warehouse;
 
-    private int totalQuantity;
-    private int availableQuantity;
-    private int reservedQuantity;
-    private int lowStockThreshold;
+    private String status; // RESERVED, RELEASED, COMMITTED
 }
