@@ -22,15 +22,39 @@ public class InventoryService {
     private final InventoryRepository inventoryRepo;
     private final WarehouseRepository warehouseRepo;
     private final StockReservationRepository reservationRepo;
+    private final ProductService productService;
+
+    
+//    public AddInventoryResponse addStock(AddInventoryRequest req) {
+//        Warehouse wh = warehouseRepo.findById(req.getWarehouseId())
+//                .orElseThrow(() -> new BusinessException("Warehouse not found"));
+//
+//        Inventory inv = new Inventory();
+//        inv.setProductId(req.getProductId());
+//        inv.setWarehouse(wh);
+//        inv.setCategory(req.getCategory());
+//        inv.setTotalQuantity(req.getQuantity());
+//        inv.setAvailableQuantity(req.getQuantity());
+//        inv.setReservedQuantity(0);
+//        inv.setLowStockThreshold(req.getLowStockThreshold());
+//
+//        Inventory saved = inventoryRepo.save(inv);
+//
+//        return new AddInventoryResponse(saved.getId(), saved.getAvailableQuantity());
+//    }
 
     public AddInventoryResponse addStock(AddInventoryRequest req) {
+
+        // ✅ Validate product existence
+        Product product = productService.getEntity(req.getProductId());
+
         Warehouse wh = warehouseRepo.findById(req.getWarehouseId())
                 .orElseThrow(() -> new BusinessException("Warehouse not found"));
 
         Inventory inv = new Inventory();
-        inv.setProductId(req.getProductId());
+        inv.setProductId(product.getId());
+        inv.setCategory(product.getCategory()); // optional sync
         inv.setWarehouse(wh);
-        inv.setCategory(req.getCategory());
         inv.setTotalQuantity(req.getQuantity());
         inv.setAvailableQuantity(req.getQuantity());
         inv.setReservedQuantity(0);
@@ -41,6 +65,7 @@ public class InventoryService {
         return new AddInventoryResponse(saved.getId(), saved.getAvailableQuantity());
     }
 
+    
     public void updateStock(Long id, UpdateInventoryRequest req) {
         Inventory inv = findInventory(id);
         inv.setCategory(req.getCategory());
