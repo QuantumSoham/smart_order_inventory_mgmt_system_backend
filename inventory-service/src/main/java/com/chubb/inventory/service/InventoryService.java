@@ -30,6 +30,7 @@ public class InventoryService {
         Inventory inv = new Inventory();
         inv.setProductId(req.getProductId());
         inv.setWarehouse(wh);
+        inv.setCategory(req.getCategory());
         inv.setTotalQuantity(req.getQuantity());
         inv.setAvailableQuantity(req.getQuantity());
         inv.setReservedQuantity(0);
@@ -42,6 +43,7 @@ public class InventoryService {
 
     public void updateStock(Long id, UpdateInventoryRequest req) {
         Inventory inv = findInventory(id);
+        inv.setCategory(req.getCategory());
         inv.setTotalQuantity(req.getQuantity());
         inv.setAvailableQuantity(req.getQuantity() - inv.getReservedQuantity());
     }
@@ -50,6 +52,7 @@ public class InventoryService {
         return inventoryRepo.findByWarehouseId(warehouseId).stream()
                 .map(i -> new InventoryByWarehouseResponse(
                         i.getProductId(),
+                        i.getCategory(),
                         i.getAvailableQuantity(),
                         i.getReservedQuantity()
                 ))
@@ -70,6 +73,7 @@ public class InventoryService {
                 .filter(i -> i.getAvailableQuantity() <= i.getLowStockThreshold())
                 .map(i -> new LowStockResponse(
                         i.getProductId(),
+                        i.getCategory(),
                         i.getAvailableQuantity()
                 ))
                 .toList();

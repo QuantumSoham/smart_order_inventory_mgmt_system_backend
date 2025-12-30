@@ -4,5 +4,6 @@ import lombok.*;
 
 @Getter @Setter
 public class UpdateInventoryRequest {
-    private int quantity;
+	private String category;
+	private int quantity;
 }

@@ -20,6 +20,7 @@ public class Inventory {
     @ManyToOne
     private Warehouse warehouse;
 
+    private String category;
     private int totalQuantity;
     private int availableQuantity;
     private int reservedQuantity;

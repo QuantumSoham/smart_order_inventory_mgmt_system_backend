@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 public class InventoryByWarehouseResponse {
     private Long productId;
+    private String category;
     private int available;
     private int reserved;
 }

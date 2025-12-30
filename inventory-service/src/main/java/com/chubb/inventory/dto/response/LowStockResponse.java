@@ -6,5 +6,6 @@ import lombok.*;
 @AllArgsConstructor
 public class LowStockResponse {
     private Long productId;
+    private String category;
     private int available;
 }
