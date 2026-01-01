@@ -28,7 +28,11 @@ public class OrderUserController {
             @PathVariable Long userId) {
         return service.getUserOrders(userId);
     }
-
+    @GetMapping("/{orderId}/status")
+    public List<OrderSummaryResponse> getUserOrderStatus(
+            @PathVariable Long orderId) {
+        return service.getUserOrderStatus(orderId);
+    }
     @PutMapping("/{orderId}/cancel")
     public void cancel(
             @PathVariable Long orderId,
