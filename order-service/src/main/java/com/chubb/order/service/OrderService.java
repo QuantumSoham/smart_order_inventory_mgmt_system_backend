@@ -83,14 +83,15 @@ public class OrderService {
                 "items", req.getItems()
         ));
 
-        order.setStatus(OrderStatus.APPROVED);
 
         //wont work because billing client not developed yet
 //        billingClient.init(order.getId());
         try {
-            billingClient.init(order.getId());
+        	billingClient.init(order.getId());
+        	order.setStatus(OrderStatus.APPROVED);
         } catch (Exception e) {
-            System.out.println("Billing skipped for order {}"+ order.getId());
+        	System.out.println("Billing skipped for order {}"+ order.getId());
+        	order.setStatus(OrderStatus.CREATED);
         }
 
 
