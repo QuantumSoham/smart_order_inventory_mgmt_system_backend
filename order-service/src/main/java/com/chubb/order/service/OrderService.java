@@ -128,6 +128,8 @@ public class OrderService {
         if (order.getStatus() == OrderStatus.SHIPPED)
             throw new BusinessException("Cannot cancel shipped order");
 
+        if (order.getStatus() == OrderStatus.DELIVERED)
+            throw new BusinessException("Cannot cancel delivered order");
         inventoryClient.release(Map.of("orderId", orderId));
         order.setStatus(OrderStatus.CANCELLED);
     }
