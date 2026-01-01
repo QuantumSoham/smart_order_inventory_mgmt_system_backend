@@ -108,6 +108,16 @@ public class OrderService {
                 .toList();
     }
 
+    public OrderSummaryResponse getUserOrderStatus(Long orderId)
+    {
+    	Order order= find(orderId);
+    	return new OrderSummaryResponse(
+    			order.getId(),
+    			order.getStatus(),
+    			order.getTotalAmount(),
+    			order.getCreatedAt()
+    			);
+    }
     public void cancel(Long orderId, Long userId) {
         Order order = find(orderId);
 
