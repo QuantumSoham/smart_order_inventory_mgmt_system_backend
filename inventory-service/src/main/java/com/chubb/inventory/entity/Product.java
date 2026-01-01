@@ -1,6 +1,7 @@
 package com.chubb.inventory.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 
 @Entity
@@ -22,6 +23,8 @@ public class Product {
     private String category;
 
     private String imageUrl;
+    
+    private BigDecimal price;
 
     private boolean active = true;
 }

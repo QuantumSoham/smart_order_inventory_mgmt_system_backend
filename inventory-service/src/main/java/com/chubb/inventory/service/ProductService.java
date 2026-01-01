@@ -23,6 +23,7 @@ public class ProductService {
         p.setName(req.getName());
         p.setDescription(req.getDescription());
         p.setCategory(req.getCategory());
+        p.setPrice(req.getPrice());
         p.setImageUrl(req.getImageUrl());
         p.setActive(true);
 
@@ -50,6 +51,7 @@ public class ProductService {
         p.setName(req.getName());
         p.setDescription(req.getDescription());
         p.setCategory(req.getCategory());
+        p.setPrice(req.getPrice());
         p.setImageUrl(req.getImageUrl());
 
         return toResponse(productRepo.save(p));
@@ -84,9 +86,10 @@ public class ProductService {
         return new ProductResponse(
                 p.getId(),
                 p.getName(),
+                p.getImageUrl(),
                 p.getDescription(),
                 p.getCategory(),
-                p.getImageUrl()
+                p.getPrice()
         );
     }
 }

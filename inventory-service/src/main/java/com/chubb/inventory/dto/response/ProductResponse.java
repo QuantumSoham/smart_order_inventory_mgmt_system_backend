@@ -1,6 +1,7 @@
 package com.chubb.inventory.dto.response;
 
 import lombok.*;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -11,4 +12,5 @@ public class ProductResponse {
     private String description;
     private String category;
     private String imageUrl;
+    private BigDecimal price;
 }

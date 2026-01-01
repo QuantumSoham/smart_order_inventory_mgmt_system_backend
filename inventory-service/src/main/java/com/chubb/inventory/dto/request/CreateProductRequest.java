@@ -1,5 +1,7 @@
 package com.chubb.inventory.dto.request;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Getter
@@ -9,4 +11,5 @@ public class CreateProductRequest {
     private String description;
     private String category;
     private String imageUrl;
+    private BigDecimal price;
 }
