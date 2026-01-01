@@ -152,6 +152,8 @@ public class OrderService {
 
         Order order = find(orderId);
 
+        if (newStatus==OrderStatus.APPROVED && order.getStatus() != OrderStatus.CREATED)
+            throw new BusinessException("Order has already been approved.");
         if (newStatus == OrderStatus.SHIPPED)
             inventoryClient.commit(Map.of("orderId", orderId));
 
