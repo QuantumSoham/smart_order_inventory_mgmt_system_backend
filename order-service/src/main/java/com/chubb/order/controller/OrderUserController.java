@@ -29,7 +29,7 @@ public class OrderUserController {
         return service.getUserOrders(userId);
     }
     @GetMapping("/{orderId}/status")
-    public List<OrderSummaryResponse> getUserOrderStatus(
+    public OrderSummaryResponse getUserOrderStatus(
             @PathVariable Long orderId) {
         return service.getUserOrderStatus(orderId);
     }
