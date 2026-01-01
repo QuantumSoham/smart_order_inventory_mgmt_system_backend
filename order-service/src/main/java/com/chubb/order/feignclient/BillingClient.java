@@ -1,13 +1,17 @@
 package com.chubb.order.feignclient;
 
-import java.util.Map;
-
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.chubb.order.dto.request.CreateInvoiceRequest;
+import com.chubb.order.dto.response.InvoiceResponse;
 
 @FeignClient(name = "billing-service")
 public interface BillingClient {
 
-    @PostMapping("/billing/init/{orderId}")
-    Map<String, Object> init(@PathVariable Long orderId);
+    @PostMapping("/billing/invoices")
+    InvoiceResponse createInvoice(
+            @RequestBody CreateInvoiceRequest request
+    );
 }

@@ -7,11 +7,14 @@ import java.util.Map;
 
 import org.springframework.stereotype.*;
 
+import com.chubb.order.dto.request.CreateInvoiceRequest;
 import com.chubb.order.dto.request.CreateOrderRequest;
+import com.chubb.order.dto.request.InvoiceItemRequest;
 import com.chubb.order.dto.request.OrderItemRequest;
 import com.chubb.order.dto.response.OrderResponse;
 import com.chubb.order.dto.response.OrderStatusResponse;
 import com.chubb.order.dto.response.OrderSummaryResponse;
+import com.chubb.order.dto.response.ProductResponse;
 import com.chubb.order.entity.Order;
 import com.chubb.order.entity.OrderItem;
 import com.chubb.order.entity.OrderStatus;
@@ -37,6 +40,7 @@ public class OrderService {
 
     public OrderResponse create(CreateOrderRequest req) {
 
+        // 1️⃣ Create Order shell
         Order order = new Order();
         order.setUserId(req.getUserId());
         order.setWarehouseId(req.getWarehouseId());
@@ -50,53 +54,97 @@ public class OrderService {
         order.setPincode(req.getPincode());
 
         BigDecimal total = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
 
-        List<OrderItem> items = new ArrayList<>();
-
+        // 2️⃣ Build OrderItems + calculate total
         for (OrderItemRequest r : req.getItems()) {
-            Map<String, Object> product =
+
+            ProductResponse product =
                     inventoryClient.getProduct(r.getProductId());
 
-            BigDecimal price =
-                    new BigDecimal(product.get("price").toString());
+            if (product == null)
+                throw new BusinessException(
+                        "Product not found: " + r.getProductId()
+                );
+
+            if (product.getPrice() == null)
+                throw new BusinessException(
+                        "Price missing for product: " + product.getName()
+                );
+
+            BigDecimal price = product.getPrice();
 
             OrderItem oi = new OrderItem();
-            oi.setProductId(r.getProductId());
+            oi.setProductId(product.getId());
             oi.setQuantity(r.getQuantity());
             oi.setPriceAtPurchase(price);
             oi.setOrder(order);
 
-            total = total.add(price.multiply(
-                    BigDecimal.valueOf(r.getQuantity())));
+            total = total.add(
+                    price.multiply(BigDecimal.valueOf(r.getQuantity()))
+            );
 
-            items.add(oi);
+            orderItems.add(oi);
         }
 
-        order.setItems(items);
+        order.setItems(orderItems);
         order.setTotalAmount(total);
 
+        // 3️⃣ Persist Order (ID needed for inventory + billing)
         orderRepo.save(order);
 
+        // 4️⃣ Reserve inventory
         inventoryClient.reserve(Map.of(
                 "orderId", order.getId(),
                 "warehouseId", order.getWarehouseId(),
                 "items", req.getItems()
         ));
 
-
-        //wont work because billing client not developed yet
-//        billingClient.init(order.getId());
+        // 5️⃣ Create invoice snapshot for Billing
         try {
-        	billingClient.init(order.getId());
-        	order.setStatus(OrderStatus.APPROVED);
+            CreateInvoiceRequest invoiceReq = new CreateInvoiceRequest();
+            invoiceReq.setOrderId(order.getId());
+            invoiceReq.setUserId(order.getUserId());
+            invoiceReq.setWarehouseId(order.getWarehouseId());
+            invoiceReq.setTotalAmount(order.getTotalAmount());
+
+            List<InvoiceItemRequest> invoiceItems = new ArrayList<>();
+
+            for (OrderItem oi : order.getItems()) {
+
+                ProductResponse product =
+                        inventoryClient.getProduct(oi.getProductId());
+
+                InvoiceItemRequest ir = new InvoiceItemRequest();
+                ir.setProductId(product.getId());
+                ir.setProductName(product.getName());
+                ir.setCategory(product.getCategory());
+                ir.setQuantity(oi.getQuantity());
+                ir.setUnitPrice(oi.getPriceAtPurchase());
+
+                invoiceItems.add(ir);
+            }
+
+            invoiceReq.setItems(invoiceItems);
+
+            billingClient.createInvoice(invoiceReq);
+
+            order.setStatus(OrderStatus.APPROVED);
+
         } catch (Exception e) {
-        	System.out.println("Billing skipped for order {}"+ order.getId());
-        	order.setStatus(OrderStatus.CREATED);
+            // Billing failure must NOT block order creation
+            System.out.println("Billing skipped for order " + order.getId());
+            order.setStatus(OrderStatus.CREATED);
         }
 
-
-        return new OrderResponse(order.getId(), order.getStatus(), total);
+        // 6️⃣ Final response
+        return new OrderResponse(
+                order.getId(),
+                order.getStatus(),
+                order.getTotalAmount()
+        );
     }
+
 
     public List<OrderSummaryResponse> getUserOrders(Long userId) {
         return orderRepo.findByUserId(userId).stream()

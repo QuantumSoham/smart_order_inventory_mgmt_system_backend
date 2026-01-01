@@ -5,11 +5,13 @@ import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import com.chubb.order.dto.response.ProductResponse;
+
 @FeignClient(name = "inventory-service")
 public interface InventoryClient {
 
     @GetMapping("/products/{productId}")
-    Map<String, Object> getProduct(@PathVariable Long productId);
+    ProductResponse getProduct(@PathVariable Long productId);
 
     @PostMapping("/inventory/reserve")
     void reserve(@RequestBody Map<String, Object> body);
