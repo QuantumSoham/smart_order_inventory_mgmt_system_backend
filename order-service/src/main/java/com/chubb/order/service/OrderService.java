@@ -11,6 +11,7 @@ import com.chubb.order.dto.request.CreateInvoiceRequest;
 import com.chubb.order.dto.request.CreateOrderRequest;
 import com.chubb.order.dto.request.InvoiceItemRequest;
 import com.chubb.order.dto.request.OrderItemRequest;
+import com.chubb.order.dto.response.OrderDetailedResponse;
 import com.chubb.order.dto.response.OrderResponse;
 import com.chubb.order.dto.response.OrderStatusResponse;
 import com.chubb.order.dto.response.OrderSummaryResponse;
@@ -36,11 +37,11 @@ public class OrderService {
     private final InventoryClient inventoryClient;
     private final BillingClient billingClient;
 
-    /* USER ACTIONS */
+    
 
     public OrderResponse create(CreateOrderRequest req) {
 
-        // 1️⃣ Create Order shell
+        
         Order order = new Order();
         order.setUserId(req.getUserId());
         order.setWarehouseId(req.getWarehouseId());
@@ -56,7 +57,7 @@ public class OrderService {
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        // 2️⃣ Build OrderItems + calculate total
+        
         for (OrderItemRequest r : req.getItems()) {
 
             ProductResponse product =
@@ -90,17 +91,17 @@ public class OrderService {
         order.setItems(orderItems);
         order.setTotalAmount(total);
 
-        // 3️⃣ Persist Order (ID needed for inventory + billing)
+        
         orderRepo.save(order);
 
-        // 4️⃣ Reserve inventory
+        
         inventoryClient.reserve(Map.of(
                 "orderId", order.getId(),
                 "warehouseId", order.getWarehouseId(),
                 "items", req.getItems()
         ));
 
-        // 5️⃣ Create invoice snapshot for Billing
+        
         try {
             CreateInvoiceRequest invoiceReq = new CreateInvoiceRequest();
             invoiceReq.setOrderId(order.getId());
@@ -132,12 +133,12 @@ public class OrderService {
             order.setStatus(OrderStatus.APPROVED);
 
         } catch (Exception e) {
-            // Billing failure must NOT block order creation
+            
             System.out.println("Billing skipped for order " + order.getId());
             order.setStatus(OrderStatus.CREATED);
         }
 
-        // 6️⃣ Final response
+        
         return new OrderResponse(
                 order.getId(),
                 order.getStatus(),
@@ -146,10 +147,18 @@ public class OrderService {
     }
 
 
-    public List<OrderSummaryResponse> getUserOrders(Long userId) {
+    public List<OrderDetailedResponse> getUserOrders(Long userId) {
         return orderRepo.findByUserId(userId).stream()
-                .map(o -> new OrderSummaryResponse(
-                        o.getId(),
+                .map(o -> new OrderDetailedResponse(
+                		o.getId(),
+                        o.getUserId(),
+                        o.getWarehouseId(),
+                        o.getShippingName(),
+                        o.getShippingPhone(),
+                        o.getShippingAddress(),
+                        o.getCity(),
+                        o.getState(),
+                        o.getPincode(),
                         o.getStatus(),
                         o.getTotalAmount(),
                         o.getCreatedAt()
@@ -182,7 +191,26 @@ public class OrderService {
         order.setStatus(OrderStatus.CANCELLED);
     }
 
-    /* ADMIN / OPS ACTIONS */
+    public List<OrderDetailedResponse> getAllOrders() {
+        return orderRepo.findAll().stream()
+                .map(o -> new OrderDetailedResponse(
+                        o.getId(),
+                        o.getUserId(),
+                        o.getWarehouseId(),
+                        o.getShippingName(),
+                        o.getShippingPhone(),
+                        o.getShippingAddress(),
+                        o.getCity(),
+                        o.getState(),
+                        o.getPincode(),
+                        o.getStatus(),
+                        o.getTotalAmount(),
+                        o.getCreatedAt()
+                ))
+                .toList();
+    }
+
+    // admin operations
 
     public List<OrderSummaryResponse> getByStatus(OrderStatus status) {
         return orderRepo.findByStatus(status).stream()
