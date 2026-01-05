@@ -51,9 +51,26 @@ public class InventoryService {
         Warehouse wh = warehouseRepo.findById(req.getWarehouseId())
                 .orElseThrow(() -> new BusinessException("Warehouse not found"));
 
+        // 🚨 IMPORTANT CHECK
+        inventoryRepo
+            .findByProductIdAndWarehouseId(
+                product.getId(),
+                wh.getId()
+            )
+            .ifPresent(inv -> {
+                throw new BusinessException(
+                    "Inventory already exists for product "
+                    + product.getName()
+                    + " in warehouse "
+                    + wh.getName()
+                    + ". Use update stock instead."
+                );
+            });
+
+        // ✅ Safe to create new inventory
         Inventory inv = new Inventory();
         inv.setProductId(product.getId());
-        inv.setCategory(product.getCategory()); // optional sync
+        inv.setCategory(product.getCategory());
         inv.setWarehouse(wh);
         inv.setTotalQuantity(req.getQuantity());
         inv.setAvailableQuantity(req.getQuantity());
@@ -62,8 +79,12 @@ public class InventoryService {
 
         Inventory saved = inventoryRepo.save(inv);
 
-        return new AddInventoryResponse(saved.getId(), saved.getAvailableQuantity());
+        return new AddInventoryResponse(
+                saved.getId(),
+                saved.getAvailableQuantity()
+        );
     }
+
 
     
     public void updateStock(Long id, UpdateInventoryRequest req) {
@@ -97,6 +118,7 @@ public class InventoryService {
         return inventoryRepo.findAll().stream()
                 .filter(i -> i.getAvailableQuantity() <= i.getLowStockThreshold())
                 .map(i -> new LowStockResponse(
+                		i.getWarehouse().getId(),
                         i.getProductId(),
                         i.getCategory(),
                         i.getAvailableQuantity()

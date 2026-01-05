@@ -133,7 +133,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 		}
 
 // INVENTORY
-		if (path.matches("^/inventory/warehouse/.*$") || path.startsWith("/inventory/") || path.startsWith("/fulfillment/") || path.startsWith("/warehouses/")) {
+		if (path.matches("^/inventory/warehouse/.*$") || path.startsWith("/inventory/") || path.equals("/inventory") || path.startsWith("/fulfillment/") || path.startsWith("/warehouses/")) {
 			return isWarehouse || isUser || isSales || isAdmin;
 		}
 
