@@ -124,6 +124,9 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 		if (path.startsWith("/orders/") && method == HttpMethod.GET) {
 			return isUser || isSales || isAdmin;
 		}
+		if (path.startsWith("/admin/analytics/") && method == HttpMethod.GET) {
+			return  isSales || isAdmin;
+		}
 
 		if (path.matches("^/orders/.+/status$") && method == HttpMethod.PUT) {
 			return isWarehouse || isAdmin;

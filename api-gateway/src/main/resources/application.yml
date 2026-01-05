@@ -20,7 +20,7 @@ spring:
         - id: order-service
           uri: lb://ORDER-SERVICE
           predicates:
-            - Path=/orders/**, /admin/orders/**
+            - Path=/orders/**, /admin/orders/**, /admin/analytics/**
 
         # BILLING SERVICE (Reports and Invoices)
         - id: billing-service
