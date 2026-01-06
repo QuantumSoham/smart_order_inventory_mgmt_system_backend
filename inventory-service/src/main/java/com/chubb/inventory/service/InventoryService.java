@@ -97,6 +97,7 @@ public class InventoryService {
     public List<InventoryByWarehouseResponse> getByWarehouse(Long warehouseId) {
         return inventoryRepo.findByWarehouseId(warehouseId).stream()
                 .map(i -> new InventoryByWarehouseResponse(
+                		i.getId(),
                         i.getProductId(),
                         i.getCategory(),
                         i.getAvailableQuantity(),
