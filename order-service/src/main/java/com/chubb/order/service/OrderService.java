@@ -11,6 +11,7 @@ import com.chubb.order.dto.request.CreateInvoiceRequest;
 import com.chubb.order.dto.request.CreateOrderRequest;
 import com.chubb.order.dto.request.InvoiceItemRequest;
 import com.chubb.order.dto.request.OrderItemRequest;
+import com.chubb.order.dto.request.OrderPlacedEventRequest;
 import com.chubb.order.dto.response.OrderDetailedResponse;
 import com.chubb.order.dto.response.OrderResponse;
 import com.chubb.order.dto.response.OrderStatusResponse;
@@ -22,6 +23,7 @@ import com.chubb.order.entity.OrderStatus;
 import com.chubb.order.exception.BusinessException;
 import com.chubb.order.feignclient.BillingClient;
 import com.chubb.order.feignclient.InventoryClient;
+import com.chubb.order.feignclient.NotificationClient;
 import com.chubb.order.repository.OrderRepository;
 
 import jakarta.transaction.Transactional;
@@ -36,6 +38,7 @@ public class OrderService {
     private final OrderRepository orderRepo;
     private final InventoryClient inventoryClient;
     private final BillingClient billingClient;
+    private final NotificationClient notificationClient;
 
     
 
@@ -136,6 +139,21 @@ public class OrderService {
             
             System.out.println("Billing skipped for order " + order.getId());
             order.setStatus(OrderStatus.CREATED);
+        }
+
+        try {
+            notificationClient.notifyOrderPlaced(
+                new OrderPlacedEventRequest(
+                    order.getId(),
+                    order.getUserId(),
+                    "user@email.com", // later from User Service / JWT
+                    order.getStatus().name(),
+                    order.getTotalAmount().doubleValue()
+                )
+            );
+        } catch (Exception e) {
+            // 🔕 Notification failure should NOT break order
+            System.out.println("Notification service unavailable");
         }
 
         
