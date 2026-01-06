@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3'  // Make sure this Maven installation exists in Jenkins
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/QuantumSoham/smart_order_inventory_mgmt_system_backend.git'
+            }
+        }
+
+        stage('Build Backend Jars') {
+            steps {
+                
+                    echo "Building all microservices jars (skipping tests)..."
+                    bat 'mvn clean package -DskipTests=true'
+                
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                
+                    echo "Building Docker images for all microservices..."
+                    bat 'docker build -t api-gateway ./api-gateway'
+                    bat 'docker build -t billing-service ./billing-service'
+                    bat 'docker build -t eureka-server ./eureka-server'
+                    bat 'docker build -t inventory-service ./inventory-service'
+                    bat 'docker build -t order-service ./order-service'
+                    bat 'docker build -t user-service ./user-service'
+                
+            }
+        }
+
+        stage('Run Docker Compose') {
+            steps {
+                dir('backend') {
+                    echo "Starting all containers with Docker Compose..."
+                    bat 'docker compose up -d --build'
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check the logs for errors."
+        }
+    }
+}
