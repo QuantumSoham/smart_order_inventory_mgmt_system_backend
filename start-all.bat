@@ -36,6 +36,10 @@ echo Starting Billing Service...
 start cmd /k java -jar billing-service\target\billing-service-0.0.1-SNAPSHOT.jar
 
 echo.
+echo Starting Kafka notification Service...
+start cmd /k java -jar notification-service\target\kafka-demo-0.0.1-SNAPSHOT.jar
+
+echo.
 echo =========================================
 echo   All services launched successfully
 echo =========================================
