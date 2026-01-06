@@ -1,0 +1,165 @@
+version: "3.9"
+
+services:
+
+  # =========================
+  # MYSQL
+  # =========================
+  mysql:
+    image: mysql:8.0
+    container_name: chubb-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "Riju@03Rai@07"
+    ports:
+      - "3307:3306"
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - chubb-net
+
+  # =========================
+  # EUREKA SERVER
+  # =========================
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mysql
+    networks:
+      - chubb-net
+
+  # =========================
+  # INVENTORY SERVICE
+  # =========================
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # 🔁 override localhost DB
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/inventory_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
+
+      # 🔁 override Eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    depends_on:
+      - mysql
+      - eureka-server
+    networks:
+      - chubb-net
+
+  # =========================
+  # ORDER SERVICE
+  # =========================
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/order_db?createDatabaseIfNotExist=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
+
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    depends_on:
+      - mysql
+      - eureka-server
+      - inventory-service
+    networks:
+      - chubb-net
+
+  # =========================
+  # BILLING SERVICE
+  # =========================
+  billing-service:
+    build: ./billing-service
+    container_name: billing-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/billing_db?createDatabaseIfNotExist=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
+
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    depends_on:
+      - mysql
+      - eureka-server
+      - order-service
+    networks:
+      - chubb-net
+
+  # =========================
+  # USER SERVICE
+  # =========================
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
+
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    depends_on:
+      - mysql
+      - eureka-server
+      - billing-service
+    networks:
+      - chubb-net
+
+  # =========================
+  # API GATEWAY (LAST)
+  # =========================
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8051:8051"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # only if gateway uses DB (JWT/auth)
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/gateway_auth_db?createDatabaseIfNotExist=true"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
+
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+    depends_on:
+      - mysql
+      - eureka-server
+      - inventory-service
+      - order-service
+      - billing-service
+      - user-service
+    networks:
+      - chubb-net
+
+
+volumes:
+  mysql_data:
+
+networks:
+  chubb-net:
+    driver: bridge
