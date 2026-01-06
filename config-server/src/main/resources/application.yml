@@ -8,6 +8,6 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/QuantumSoham/flightapp-config-repo.git
+          uri: https://github.com/QuantumSoham/inventory-config-server-repo.git
           default-label: main   
           
