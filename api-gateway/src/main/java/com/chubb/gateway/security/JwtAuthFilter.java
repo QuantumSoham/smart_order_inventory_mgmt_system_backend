@@ -73,6 +73,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 	//public endpoints
 	private boolean isPublicEndpoint(String path, HttpMethod method) {
 
+		if(path.equals("/ai/billing") && method==HttpMethod.POST)
+		{
+			return true;
+		}
 		if (path.startsWith("/auth/")) {
 			return true;
 		}
@@ -114,6 +118,11 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 		if (path.startsWith("/products/") || (path.equals("/products") && method == HttpMethod.POST)
 				&& (method == HttpMethod.POST || method == HttpMethod.PUT || method == HttpMethod.DELETE)) {
 			return isAdmin || isSales || isWarehouse;
+		}
+		
+		if(path.matches("/orders/.+/cancel") && method==HttpMethod.PUT)
+		{
+			return isAdmin || isUser;
 		}
 
 // ORDERS

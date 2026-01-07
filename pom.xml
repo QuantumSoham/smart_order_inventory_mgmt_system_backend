@@ -29,6 +29,8 @@
         <module>order-service</module>
         <module>user-service</module>
 		<module>notification-service</module>
+		<module>agent-server</module>
+		<module>config-server</module>
     </modules>
 
     <properties>

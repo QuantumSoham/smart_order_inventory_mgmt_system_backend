@@ -46,14 +46,10 @@ services:
       - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      # 🔁 override localhost DB
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/inventory_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
-
-      # 🔁 override Eureka
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/inventory_db?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Riju@03Rai@07
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
       - mysql
       - eureka-server
@@ -70,15 +66,11 @@ services:
       - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/order_db?createDatabaseIfNotExist=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
-
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Riju@03Rai@07
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
-      - mysql
-      - eureka-server
       - inventory-service
     networks:
       - chubb-net
@@ -93,15 +85,11 @@ services:
       - "8084:8084"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/billing_db?createDatabaseIfNotExist=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
-
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/billing_db?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Riju@03Rai@07
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
-      - mysql
-      - eureka-server
       - order-service
     networks:
       - chubb-net
@@ -116,21 +104,17 @@ services:
       - "8086:8086"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
-
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Riju@03Rai@07
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
-      - mysql
-      - eureka-server
       - billing-service
     networks:
       - chubb-net
 
   # =========================
-  # API GATEWAY (LAST)
+  # API GATEWAY
   # =========================
   api-gateway:
     build: ./api-gateway
@@ -139,23 +123,36 @@ services:
       - "8051:8051"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-
-      # only if gateway uses DB (JWT/auth)
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/gateway_auth_db?createDatabaseIfNotExist=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "Riju@03Rai@07"
-
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-server:8761/eureka"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
-      - mysql
-      - eureka-server
-      - inventory-service
-      - order-service
-      - billing-service
       - user-service
     networks:
       - chubb-net
 
+  # =========================
+  # AGENT SERVER (AI / RAG)
+  # =========================
+  agent-server:
+    build: ./agent-server
+    container_name: agent-server
+    ports:
+      - "9888:9888"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Eureka (Docker DNS)
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+      # Groq / OpenAI-compatible config
+      SPRING_AI_OPENAI_API_KEY: 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
+      SPRING_AI_OPENAI_BASE_URL: https://api.groq.com/openai
+      SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL: openai/gpt-oss-20b
+      SPRING_AI_OPENAI_CHAT_OPTIONS_TEMPERATURE: 0.7
+    depends_on:
+      - eureka-server
+      - api-gateway
+    networks:
+      - chubb-net
 
 volumes:
   mysql_data:

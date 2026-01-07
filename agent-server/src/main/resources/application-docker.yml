@@ -1,0 +1,28 @@
+server:
+  port: 9888
+
+spring:
+  application:
+    name: agent-server
+
+  ai:
+    openai:
+      api-key: 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
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: openai/gpt-oss-20b
+          temperature: 0.7
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+
+# 🚫 Disable AWS auto-discovery
+cloud:
+  aws:
+    stack:
+      auto: false
