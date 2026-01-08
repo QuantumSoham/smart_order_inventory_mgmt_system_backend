@@ -1,0 +1,161 @@
+{
+  "info": {
+    "name": "Smart Order Inventory - API",
+    "_postman_id": "generated-collection-id",
+    "description": "Collection generated from project controllers. Set variable `baseUrl` to http://localhost:8051",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8051",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Billing Service",
+      "item": [
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": 1001,\n  \"userId\": 10,\n  \"warehouseId\": 5,\n  \"totalAmount\": 30.00,\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"productName\": \"Widget\",\n      \"category\": \"Tools\",\n      \"quantity\": 3,\n      \"unitPrice\": 10.00\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/billing/invoices", "host": ["{{baseUrl}}"], "path": ["billing","invoices"] }
+          }
+        },
+        {
+          "name": "Get Invoice By OrderId",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/billing/invoices/1001", "host": ["{{baseUrl}}"], "path": ["billing","invoices","1001"] } }
+        },
+        {
+          "name": "Pay Invoice",
+          "request": { "method": "POST", "url": { "raw": "{{baseUrl}}/billing/invoices/42/pay", "host": ["{{baseUrl}}"], "path": ["billing","invoices","42","pay"] } }
+        }
+      ]
+    },
+    {
+      "name": "Billing Reports",
+      "item": [
+        {
+          "name": "Revenue By Date",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/billing/reports/revenue?from=2025-01-01&to=2025-01-31", "host": ["{{baseUrl}}"], "path": ["billing","reports","revenue"], "query": [ { "key": "from", "value": "2025-01-01" }, { "key": "to", "value": "2025-01-31" } ] } }
+        },
+        { "name": "Sales By Category", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/billing/reports/sales/category", "host": ["{{baseUrl}}"], "path": ["billing","reports","sales","category"] } } },
+        { "name": "Sales By Warehouse", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/billing/reports/sales/warehouse", "host": ["{{baseUrl}}"], "path": ["billing","reports","sales","warehouse"] } } },
+        { "name": "Top Products", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/billing/reports/top-products", "host": ["{{baseUrl}}"], "path": ["billing","reports","top-products"] } } }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": 10,\n  \"warehouseId\": 5,\n  \"shippingName\": \"John Doe\",\n  \"shippingPhone\": \"+911234567890\",\n  \"shippingAddress\": \"123 Main St\",\n  \"city\": \"Mumbai\",\n  \"state\": \"MH\",\n  \"pincode\": \"400001\",\n  \"items\": [ { \"productId\": 1, \"quantity\": 2 } ]\n}" },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          }
+        },
+        { "name": "Get User Orders", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/orders/user/10", "host": ["{{baseUrl}}"], "path": ["orders","user","10"] } } },
+        { "name": "Get Order Status", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/orders/1001/status", "host": ["{{baseUrl}}"], "path": ["orders","1001","status"] } } },
+        { "name": "Cancel Order", "request": { "method": "PUT", "header": [ { "key": "X-USER-ID", "value": "10" } ], "url": { "raw": "{{baseUrl}}/orders/1001/cancel", "host": ["{{baseUrl}}"], "path": ["orders","1001","cancel"] } } }
+      ]
+    },
+    {
+      "name": "Inventory Service",
+      "item": [
+        {
+          "name": "Add Inventory",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1,\n  \"warehouseId\": 5,\n  \"category\": \"Tools\",\n  \"quantity\": 100,\n  \"lowStockThreshold\": 10\n}" },
+            "url": { "raw": "{{baseUrl}}/inventory", "host": ["{{baseUrl}}"], "path": ["inventory"] }
+          }
+        },
+        {
+          "name": "Update Inventory",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"category\": \"Tools\",\n  \"quantity\": 120\n}" },
+            "url": { "raw": "{{baseUrl}}/inventory/1", "host": ["{{baseUrl}}"], "path": ["inventory","1"] }
+          }
+        },
+        {
+          "name": "Reserve Stock",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": 1001,\n  \"warehouseId\": 5,\n  \"items\": [ { \"productId\": 1, \"quantity\": 2 } ]\n}" },
+            "url": { "raw": "{{baseUrl}}/inventory/reserve", "host": ["{{baseUrl}}"], "path": ["inventory","reserve"] }
+          }
+        },
+        {
+          "name": "Release Stock",
+          "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"orderId\": 1001 }" }, "url": { "raw": "{{baseUrl}}/inventory/release", "host": ["{{baseUrl}}"], "path": ["inventory","release"] } }
+        },
+        {
+          "name": "Commit Stock",
+          "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"orderId\": 1001 }" }, "url": { "raw": "{{baseUrl}}/inventory/commit", "host": ["{{baseUrl}}"], "path": ["inventory","commit"] } }
+        }
+      ]
+    },
+    {
+      "name": "User Service",
+      "item": [
+        {
+          "name": "Register User",
+          "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"username\": \"johndoe\", \"email\": \"john@example.com\", \"password\": \"secret\", \"role\": \"USER\" }" }, "url": { "raw": "{{baseUrl}}/users/register", "host": ["{{baseUrl}}"], "path": ["users","register"] } }
+        },
+        {
+          "name": "Login",
+          "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"credential\": \"johndoe\", \"password\": \"secret\" }" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users","login"] } }
+        },
+        { "name": "Activate User", "request": { "method": "PUT", "url": { "raw": "{{baseUrl}}/users/10/activate", "host": ["{{baseUrl}}"], "path": ["users","10","activate"] } } },
+        { "name": "Deactivate User", "request": { "method": "PUT", "url": { "raw": "{{baseUrl}}/users/10/deactivate", "host": ["{{baseUrl}}"], "path": ["users","10","deactivate"] } } },
+        { "name": "List Users", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] } } }
+      ]
+    },
+    {
+      "name": "Notification Service",
+      "item": [
+        {
+          "name": "Order Placed Notification",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"orderId\": 1001,\n  \"userId\": 10,\n  \"userEmail\": \"john@example.com\",\n  \"status\": \"PLACED\",\n  \"totalAmount\": 299.99\n}" },
+            "url": { "raw": "{{baseUrl}}/notifications/order-placed", "host": ["{{baseUrl}}"], "path": ["notifications","order-placed"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agent Server",
+      "item": [
+        {
+          "name": "Ask Billing Agent",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "text/plain" } ],
+            "body": { "mode": "raw", "raw": "What were the top products last month?" },
+            "url": { "raw": "{{baseUrl}}/ai/billing", "host": ["{{baseUrl}}"], "path": ["ai","billing"] }
+          }
+        },
+        {
+          "name": "Generate (chat)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/ai/generate?message=Hello", "host": ["{{baseUrl}}"], "path": ["ai","generate"], "query": [ { "key": "message", "value": "Hello" } ] } }
+        }
+      ]
+    }
+  ]
+}
