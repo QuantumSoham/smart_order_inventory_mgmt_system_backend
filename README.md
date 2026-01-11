@@ -16,10 +16,12 @@ This repository is a compilation of my frontend and backend repositories in one 
 <div align="left">
 
 ### System design / architecture
-![System design and architecture](images/system-design-architecture.png)
+<img width="1386" height="843" alt="system-design-architecture" src="https://github.com/user-attachments/assets/3f0de3e2-0d87-416b-b2fb-69330e775467" />
+
 
 ### CI/CD & Deployment diagram
-![CI/CD and deployment diagram](images/cicd-deployment-diagram.png)
+<img width="2393" height="1358" alt="cicd-deployment-diagram" src="https://github.com/user-attachments/assets/d3078ac6-f902-49aa-b235-fa9aa23cb747" />
+
 
 ## Spring AI and Agent Server Architecture
 
@@ -34,7 +36,8 @@ This repository is a compilation of my frontend and backend repositories in one 
 
 
 ### Sequence diagram (request flows)
-![Sequence diagram](images/sequence-diagram.png)
+<img width="2847" height="6210" alt="sequence-diagram" src="https://github.com/user-attachments/assets/31f4fb48-62b0-4d42-92ca-610d1147979f" />
+
 
 </div>
 
