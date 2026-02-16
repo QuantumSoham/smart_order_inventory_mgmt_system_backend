@@ -6,6 +6,7 @@ This repository is a compilation of my frontend and backend repositories in one 
 
 ## Links for my code repositories
 
+
 - Frontend: https://github.com/QuantumSoham/smart_order_inventory_mgmt_system_frontend
 - Backend: https://github.com/QuantumSoham/smart_order_inventory_mgmt_system_backend
 - Config Server: https://github.com/QuantumSoham/inventory-config-server-repo
